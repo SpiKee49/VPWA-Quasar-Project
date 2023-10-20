@@ -1,23 +1,18 @@
 <template>
   <q-layout view="lHh LpR lFr">
 
-    <q-header elevated class="bg-primary text-white">
+    <q-header bordered="" class="bg-primary text-white">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
-
         <q-toolbar-title>
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
-          </q-avatar>
-          Title
+          Dačo take jak Discord
         </q-toolbar-title>
-
+ 
         <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" behavior="desktop" bordered>
-      <!-- drawer content -->
+    <q-drawer show-if-above persistent overlay no-swipe-close no-swipe-open :model-value="true" side="left" behavior="desktop" bordered>
+      <ChannelsComponent/>
     </q-drawer>
 
     <q-drawer v-model="rightDrawerOpen" side="right" overlay behavior="desktop">
@@ -32,9 +27,13 @@
 </template>
 
 <script>
+import ChannelsComponent from 'components/Channels/ChannelsComponent.vue'
 import { ref } from 'vue'
 
 export default {
+  components:{
+    ChannelsComponent
+  },
   setup () {
     const leftDrawerOpen = ref(false)
     const rightDrawerOpen = ref(false)
