@@ -12,12 +12,19 @@
                 :active="activeTab === channel"
                 active-class="bg-info"
             >
-                <q-item-section avatar
-                    ><q-icon color="white" name="fa-solid fa-message"
-                /></q-item-section>
+                <q-item-section avatar>
+                    <q-icon color="white" name="fa-solid fa-message" />
+                </q-item-section>
+
                 <q-item-section class="text-white">
                     Channel #{{ channel }}
                 </q-item-section>
+                <q-badge
+                    color="info"
+                    v-if="channel === 2"
+                    align="top"
+                    rounded
+                />
             </q-item>
         </q-list>
         <q-btn
