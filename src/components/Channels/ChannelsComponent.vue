@@ -32,17 +32,40 @@
             icon="fa-solid fa-circle-plus"
             label="Create channel"
             class="q-py-md full-width q-mt-md"
+            @click="openDialog = true"
         />
     </div>
+    <CustomDialog
+        v-model="openDialog"
+        title="New channel"
+        btn-text="Add channel"
+        :on-click="
+            () => {
+                openDialog = false
+                newChannelName = ''
+            }
+        "
+        ><q-input
+            color="info"
+            dense
+            v-model="newChannelName"
+            autofocus
+            @keyup.enter="openDialog = false"
+        />
+    </CustomDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import CustomDialog from '../CustomDialog.vue'
 const route = useRoute()
 const activeTab = ref<number>()
+const newChannelName = ref<string>('')
 watch(route, () => {
     console.log(route.params.id)
     activeTab.value = Number(route.params.id) ?? ''
 })
+
+const openDialog = ref(false)
 </script>

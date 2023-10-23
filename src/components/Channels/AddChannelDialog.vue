@@ -1,31 +1,37 @@
 <template>
-    <q-dialog v-model="addChannel" persistent>
-        <q-card>
-            <q-card-section class="row items-center">
-                <q-avatar
-                    icon="signal_wifi_off"
-                    color="primary"
-                    text-color="white"
-                />
-                <span class="q-ml-sm"
-                    >You are currently not connected to any network.</span
-                >
+    <q-dialog
+        :model-value="modelValue"
+        @update:model-value="(value) => $emit('update:model-value', value)"
+    >
+        <q-card style="min-width: 350px" flat>
+            <q-card-section>
+                <div class="text-h6">Channel name</div>
             </q-card-section>
-            <q-card-actions align="right">
-                <q-btn flat label="Cancel" color="primary" v-close-popup />
-                <q-btn
-                    flat
-                    label="Turn on Wifi"
-                    color="primary"
-                    v-close-popup
+
+            <q-card-section class="q-pt-none">
+                <q-input
+                    color="info"
+                    dense
+                    v-model="newChannel"
+                    autofocus
+                    @keyup.enter="$emit('update:model-value', false)"
                 />
+            </q-card-section>
+
+            <q-card-actions align="right" class="text-primary">
+                <q-btn color="info" text-color="white" label="Add channel" />
             </q-card-actions>
         </q-card>
     </q-dialog>
 </template>
 
 <script setup lang="ts">
-const props = defineProps({})
-</script>
+import { ref } from 'vue'
+interface Props {
+    modelValue: boolean
+}
+defineProps<Props>()
+defineEmits(['update:model-value'])
 
-style
+const newChannel = ref<string>('')
+</script>
