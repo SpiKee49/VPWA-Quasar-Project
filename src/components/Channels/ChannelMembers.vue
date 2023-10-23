@@ -1,5 +1,15 @@
 <template>
-    <p class="q-pa-sm bg-info q-ma-none text-bold">Channel members</p>
+    <div
+        class="row justify-between items-center q-pa-sm bg-info q-ma-none text-bold"
+    >
+        <p class="q-ma-none">Channel members</p>
+        <q-btn
+            color="white"
+            flat
+            icon="fa-solid fa-user-plus"
+            @click="showModal = true"
+        />
+    </div>
     <q-list>
         <q-item
             v-for="item in [1, 2, 3, 4, 5, 6, 7]"
@@ -29,12 +39,25 @@
             </q-menu>
         </q-item>
     </q-list>
+    <CustomDialog
+        v-model="showModal"
+        title="Invite people"
+        btn-text="Invite"
+        :onClick="() => {}"
+    >
+        <q-input
+            v-model="inviteUserName"
+            color="info"
+            type="text"
+            label="Username"
+        />
+    </CustomDialog>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import CustomDialog from '../CustomDialog.vue'
 
-<style scoped lang="scss">
-.menu-item-icon {
-    display: inline-block;
-}
-</style>
+const showModal = ref(false)
+const inviteUserName = ref('')
+</script>

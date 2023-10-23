@@ -34,7 +34,7 @@ interface Props {
     btnColor?: string
     btnPosition?: 'left' | 'center' | 'right'
     hideBtn?: boolean
-    onClick: () => void
+    onClick?: () => void
 }
 defineProps<Props>()
 defineEmits(['update:model-value'])
