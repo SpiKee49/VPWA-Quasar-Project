@@ -1,7 +1,44 @@
 <template>
     <div class="column justify-center items-center q-px-md">
-        <p class="q-pa-md text-h5 bg-dark q-ma-none">Channels</p>
-        <q-separator />
+        <p class="q-pa-md text-h6 bg-dark q-ma-none">Invites</p>
+
+        <q-list dark class="fit q-gutter-md">
+            <q-item
+                v-for="channel in invites"
+                :key="channel"
+                class="q-py-lg"
+                active-class="bg-info"
+            >
+                <q-item-section avatar>
+                    <q-icon color="white" name="fa-solid fa-message" />
+                </q-item-section>
+
+                <q-item-section class="text-white">
+                    Channel invite #{{ channel }}
+                </q-item-section>
+                <q-item-section
+                    no-wrap
+                    side
+                    style="flex-wrap: nowrap; flex-direction: row"
+                    class="text-white q-gutter-xs"
+                >
+                    <q-btn
+                        color="positive"
+                        size="xs"
+                        round
+                        icon="fa-solid fa-check"
+                    />
+                    <q-btn
+                        color="negative"
+                        size="xs"
+                        round
+                        icon="fa-solid fa-xmark"
+                    />
+                </q-item-section>
+            </q-item>
+        </q-list>
+        <p class="q-pa-md text-h6 bg-dark q-ma-none">Channels</p>
+
         <q-list dark class="fit q-gutter-md">
             <q-item
                 v-for="channel in [1, 2, 3, 4]"
@@ -60,6 +97,8 @@
         :title="dialog.title"
         :btn-text="dialog.btnText"
         :hide-btn="!dialog.isAdd"
+        :show-toggle="dialog.isAdd"
+        :toggle-text="dialog.isAdd ? 'Private channel' : ''"
         :on-click="
             () => {
                 openDialog = false
@@ -115,6 +154,7 @@ const dialog = reactive<DialogProps>({
 const route = useRoute()
 const activeTab = ref<number>()
 const newChannelName = ref<string>('')
+const invites = reactive([1])
 
 watch(route, () => {
     console.log(route.params.id)

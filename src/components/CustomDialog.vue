@@ -10,12 +10,16 @@
 
             <q-card-section class="q-pt-none"> <slot></slot> </q-card-section>
 
-            <q-card-actions
-                v-if="!hideBtn ?? true"
-                :align="btnPosition ?? 'right'"
-                class="text-primary"
-            >
+            <q-card-actions :align="btnPosition ?? 'right'" class="text-white">
+                <q-toggle
+                    v-if="showToggle ?? false"
+                    v-model="toggleValue"
+                    color="info"
+                    :label="toggleText ?? ''"
+                    left-label
+                />
                 <q-btn
+                    v-if="!hideBtn ?? true"
                     :color="btnColor ?? 'info'"
                     text-color="white"
                     :label="btnText"
@@ -27,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 interface Props {
     modelValue: boolean
     title: string
@@ -34,8 +40,12 @@ interface Props {
     btnColor?: string
     btnPosition?: 'left' | 'center' | 'right'
     hideBtn?: boolean
+    showToggle?: boolean
+    toggleText?: string
     onClick?: () => void
 }
 defineProps<Props>()
 defineEmits(['update:model-value'])
+
+const toggleValue = ref(true)
 </script>
