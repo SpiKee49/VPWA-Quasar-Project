@@ -1,22 +1,27 @@
 <template>
     <q-card class="my-card" square flat>
-      <q-card-section class="bg-info text-white row justify-between">
-        <div class="text-h6">@JohnDoe</div>
-        <q-btn color="white" flat class="text-caption" icon="fa-solid fa-right-from-bracket"  />
-      </q-card-section>
-      <q-card-actions align="around" class="q-py-md" >
-        <q-btn color="positive" class="text-caption" label="Online"  />
-        <q-btn color="negative" class="text-caption" label="Don't disturb"  />
-        <q-btn color="secondary" class="text-caption"  label="Offline"  />
-      </q-card-actions>
+        <q-card-section class="bg-info text-white row justify-between">
+            <div class="text-h6">@JohnDoe</div>
+            <q-btn
+                color="white"
+                flat
+                icon="fa-solid fa-right-from-bracket"
+                to="/login"
+            />
+        </q-card-section>
+        <q-card-actions align="around" class="q-py-md">
+            <q-btn color="positive" class="text-caption" label="Online" />
+            <q-btn
+                color="negative"
+                class="text-caption"
+                label="Don't disturb"
+            />
+            <q-btn color="secondary" class="text-caption" label="Offline" />
+        </q-card-actions>
     </q-card>
-    <q-separator/>
+    <q-separator />
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-</script>
-
-<style scoped>
-
-</style>
+<style scoped></style>

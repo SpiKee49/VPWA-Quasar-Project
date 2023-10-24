@@ -23,7 +23,7 @@
             class="text-body1"
         />
     </div>
-    <CustomDialog v-model="dialogOpen" title="Currently typing">
+    <CustomDialog v-model="dialogOpen" title="Currently typing" hide-btn>
         <div style="width: 100%; max-height: 350px">
             <q-chat-message
                 v-for="msg in messages"
