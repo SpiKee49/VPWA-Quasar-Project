@@ -21,13 +21,10 @@
 </template>
 
 <script setup lang="ts">
+import { MessageType } from '../../types/messageTypes'
 import { ref } from 'vue'
-type Message = {
-    name: string
-    text: string[]
-}
 
-const messages = ref<Message[]>([
+const messages = ref<MessageType[]>([
     {
         name: 'John',
         text: [

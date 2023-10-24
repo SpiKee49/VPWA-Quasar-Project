@@ -36,26 +36,8 @@
             <router-view />
         </q-page-container>
         <q-footer v-model="showFooter" reveal>
-            <div class="q-pa-md bg-dark">
-                <q-btn flat class="row text-info justify-center items-center">
-                    <q-spinner-dots color="info" size="1.5rem" :thickness="5" />
-                    <p class="q-ma-none q-ml-sm">Someone is typing...</p>
-                </q-btn>
-                <q-input
-                    @keydown.enter="sendMessage()"
-                    v-model.trim="inputText"
-                    type="text"
-                    placeholder="Start typing..."
-                    autofocus
-                    square
-                    filled
-                    bg-color="darker"
-                    bordered
-                    color="white"
-                    input-style="q-px-md"
-                    class="text-body1"
-                /></div
-        ></q-footer>
+            <Footer />
+        </q-footer>
     </q-layout>
 </template>
 
@@ -63,7 +45,8 @@
 import ChannelsComponent from 'components/Channels/ChannelsComponent.vue'
 import ProfileComponent from 'components/Profile/ProfileComponent.vue'
 import ChannelMembers from 'src/components/Channels/ChannelMembers.vue'
-import { ref, watch } from 'vue'
+import Footer from 'src/components/Footer.vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 export default {
@@ -71,19 +54,22 @@ export default {
         ChannelsComponent,
         ProfileComponent,
         ChannelMembers,
+        Footer,
     },
     setup() {
         const leftDrawerOpen = ref(false)
         const rightDrawerOpen = ref(false)
         const showFooter = ref(false)
         const route = useRoute()
-        watch(route, () => {
+        const displayFooter = () => {
             if (route.fullPath.includes('channels')) {
                 showFooter.value = true
             } else {
                 showFooter.value = false
             }
-        })
+        }
+        onMounted(displayFooter)
+        watch(route, displayFooter)
 
         return {
             leftDrawerOpen,

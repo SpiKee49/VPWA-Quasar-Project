@@ -75,11 +75,7 @@
             autofocus
             @keyup.enter="openDialog = false"
         />
-        <div
-            v-else
-            style="max-width: 300px; max-height: 200px"
-            class="height-full"
-        >
+        <div v-else style="max-height: 200px" class="height-full">
             <q-list>
                 <q-item
                     v-for="channel in [

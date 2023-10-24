@@ -3,7 +3,7 @@
         :model-value="modelValue"
         @update:model-value="(value) => $emit('update:model-value', value)"
     >
-        <q-card style="min-width: 350px" flat>
+        <q-card style="min-width: 500px" flat>
             <q-card-section>
                 <div class="text-h6">{{ title }}</div>
             </q-card-section>
@@ -30,7 +30,7 @@
 interface Props {
     modelValue: boolean
     title: string
-    btnText: string
+    btnText?: string
     btnColor?: string
     btnPosition?: 'left' | 'center' | 'right'
     hideBtn?: boolean
