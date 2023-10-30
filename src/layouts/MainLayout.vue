@@ -41,7 +41,7 @@
     </q-layout>
 </template>
 
-<script>
+<script setup>
 import ChannelsComponent from 'components/Channels/ChannelsComponent.vue'
 import ProfileComponent from 'components/Profile/ProfileComponent.vue'
 import ChannelMembers from 'src/components/Channels/ChannelMembers.vue'
@@ -49,40 +49,21 @@ import Footer from 'src/components/Footer.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-export default {
-    components: {
-        ChannelsComponent,
-        ProfileComponent,
-        ChannelMembers,
-        Footer,
-    },
-    setup() {
-        const leftDrawerOpen = ref(false)
-        const rightDrawerOpen = ref(false)
-        const showFooter = ref(false)
-        const route = useRoute()
-        const displayFooter = () => {
-            if (route.fullPath.includes('channels')) {
-                showFooter.value = true
-            } else {
-                showFooter.value = false
-            }
-        }
-        onMounted(displayFooter)
-        watch(route, displayFooter)
+const rightDrawerOpen = ref(false)
 
-        return {
-            leftDrawerOpen,
-            toggleLeftDrawer() {
-                leftDrawerOpen.value = !leftDrawerOpen.value
-            },
+const showFooter = ref(false)
+const route = useRoute()
+const displayFooter = () => {
+    if (route.fullPath.includes('channels')) {
+        showFooter.value = true
+    } else {
+        showFooter.value = false
+    }
+}
+onMounted(displayFooter)
+watch(route, displayFooter)
 
-            rightDrawerOpen,
-            toggleRightDrawer() {
-                rightDrawerOpen.value = !rightDrawerOpen.value
-            },
-            showFooter,
-        }
-    },
+function toggleRightDrawer() {
+    rightDrawerOpen.value = !rightDrawerOpen.value
 }
 </script>
