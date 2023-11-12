@@ -12,30 +12,46 @@
             </q-card-section>
             <q-card-section>
                 <q-form class="q-gutter-md text-white">
-                    <q-input color="info" label="Username"></q-input>
                     <q-input
+                        v-model="credentials.email"
                         color="info"
-                        label="Password"
-                        type="password"
+                        type="email"
+                        label="Email"
                     ></q-input>
                     <q-input
+                        v-model="credentials.password"
+                        color="info"
+                        label="Password"
+                        :type="showPassword ? 'text' : 'password'"
+                    >
+                        <template v-slot:append>
+                            <q-icon
+                                :name="
+                                    showPassword
+                                        ? 'visibility'
+                                        : 'visibility_off'
+                                "
+                                class="cursor-pointer"
+                                @click="showPassword = !showPassword"
+                        /></template>
+                    </q-input>
+                    <q-input
+                        v-model="credentials.passwordConfirmation"
                         v-if="!isLogin"
                         color="info"
+                        :type="showPassword ? 'text' : 'password'"
                         label="Repeat password"
-                        type="password"
                     ></q-input>
                     <div>
                         <q-btn
                             class="full-width"
-                            to="/"
                             color="info"
                             :label="isLogin ? 'Log in' : 'Register'"
+                            :loading="userStore.isLoading"
+                            @click="submitForm"
                             rounded
                         ></q-btn>
                         <div class="row justify-around q-mt-md">
-                            <router-link class="text-white" to="/login"
-                                >Forgot password?</router-link
-                            >
                             <p
                                 class="text-white"
                                 style="
@@ -55,7 +71,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
+import { useUserStore } from 'src/stores/user-store'
+import { LoginCredentials, RegisterData } from '../../contracts/Auth'
+import { useQuasar } from 'quasar'
 
+const $q = useQuasar()
 const isLogin = ref(true)
+const showPassword = ref(false)
+const credentials = reactive<LoginCredentials & RegisterData>({
+    email: '',
+    password: '',
+    passwordConfirmation: '',
+    remember: true,
+})
+
+const userStore = useUserStore()
+
+function submitForm() {
+    if (isLogin.value) {
+        const { passwordConfirmation: _, ...loginCred } = credentials
+        userStore.login(loginCred)
+    } else {
+        const { remember: _, ...registerCred } = credentials
+        userStore.register(registerCred)
+        $q.notify({
+            position: 'top',
+            color: 'positive',
+            message:
+                "You've been registered successfuly, continue by logging in",
+        })
+        isLogin.value = true
+    }
+}
 </script>
