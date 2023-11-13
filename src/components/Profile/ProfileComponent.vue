@@ -1,12 +1,12 @@
 <template>
     <q-card class="my-card" square flat>
         <q-card-section class="bg-info text-white row justify-between">
-            <div class="text-h6">@JohnDoe</div>
+            <div class="text-h6">{{ userStore.user?.email }}</div>
             <q-btn
                 color="white"
                 flat
                 icon="fa-solid fa-right-from-bracket"
-                to="/login"
+                @click="userStore.logout()"
             />
         </q-card-section>
         <q-card-actions align="around" class="q-py-md">
@@ -22,6 +22,8 @@
     <q-separator />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useUserStore } from '../../stores/user-store'
 
-<style scoped></style>
+const userStore = useUserStore()
+</script>

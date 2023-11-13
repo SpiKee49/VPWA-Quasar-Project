@@ -75,7 +75,9 @@ import { ref, reactive } from 'vue'
 import { useUserStore } from 'src/stores/user-store'
 import { LoginCredentials, RegisterData } from '../../contracts/Auth'
 import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const $q = useQuasar()
 const isLogin = ref(true)
 const showPassword = ref(false)
@@ -88,13 +90,14 @@ const credentials = reactive<LoginCredentials & RegisterData>({
 
 const userStore = useUserStore()
 
-function submitForm() {
+async function submitForm() {
     if (isLogin.value) {
         const { passwordConfirmation: _, ...loginCred } = credentials
-        userStore.login(loginCred)
+        await userStore.login(loginCred)
+        router.push('/')
     } else {
         const { remember: _, ...registerCred } = credentials
-        userStore.register(registerCred)
+        await userStore.register(registerCred)
         $q.notify({
             position: 'top',
             color: 'positive',
