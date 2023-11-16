@@ -67,10 +67,6 @@ const displayFooter = () => {
 }
 onMounted(() => {
     displayFooter()
-    if (userStore.isAuthenticated) {
-        console.log('test')
-        messageStore.initializeChannelsSocket()
-    }
 })
 watch(route, displayFooter)
 

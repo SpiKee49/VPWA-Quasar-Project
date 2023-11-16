@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', {
         getUserData: (state) => state.user,
         isLoading: (state) => state.status === 'pending',
         isAuthenticated: (state) => state.user !== null,
+        getUserChannels: (state) => state.user!.channels,
     },
     actions: {
         async check() {
@@ -29,6 +30,7 @@ export const useUserStore = defineStore('user', {
                 const user = await authService.me()
                 this.status = 'success'
                 this.user = user
+                console.log(user?.channels)
                 return user !== null
             } catch (errors) {
                 this.status = 'error'

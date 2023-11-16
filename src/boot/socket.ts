@@ -8,6 +8,11 @@ const SocketManager: Manager = new Manager(process.env.API_URL)
 
 let ChannelSocket: Socket | null = null
 
+function emitMessage(channelId: number, message: string) {
+    if (message === '') return
+    ChannelSocket!.emit('addMessage', { channelId, message })
+}
+
 export default boot(({ store }) => {
     ChannelSocket = SocketManager.socket('/channels', {
         auth: { token: AuthManager.getToken() },
@@ -30,9 +35,10 @@ export default boot(({ store }) => {
         }
     })
 
-    ChannelSocket.on('updateMessages', (room) => {
+    ChannelSocket!.on('newMessage', ({ channelId, message }) => {
         const messageStore = useMessageStore(store)
+        messageStore.appendMessage(channelId, message)
     })
 })
 
-export { ChannelSocket }
+export { ChannelSocket, emitMessage }

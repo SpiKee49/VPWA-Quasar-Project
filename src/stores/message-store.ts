@@ -7,34 +7,50 @@ import { useUserStore } from './user-store'
 interface MessageState {
     //create Maps for channel messages, and individual connections to WS
     channelMessages: Map<number, SerializedMessage[]>
+    activeChannelId: number
 }
 
 export const useMessageStore = defineStore('messages', {
     state: (): MessageState => ({
         channelMessages: new Map<number, SerializedMessage[]>(),
+        activeChannelId: 0,
     }),
     getters: {
-        getMessages: (state) => state.channelMessages,
+        getMessages: (state) =>
+            state.channelMessages.get(state.activeChannelId),
+        getActiveChannel: (state) => state.activeChannelId,
     },
     actions: {
-        initializeChannelsSocket() {
+        joinRooms() {
             const userStore = useUserStore()
             ChannelSocket!.emit(
                 'joinRooms',
                 userStore.user?.channels.map((channel) => channel.id.toString())
             )
         },
-        async initiallyLoadMessages(channelId: number) {
-            const res = await api.get(`channels/${channelId}/messages`)
+        async loadMessages(channelId: number) {
+            const res = await api.post(`channels/${channelId}/messages`, {
+                offset: this.channelMessages.get(channelId)!.length ?? 0,
+            })
             const messages = res.data as SerializedMessage[]
-
-            if (messages.length <= 0) return
 
             this.channelMessages.set(channelId, messages)
         },
 
         appendMessage(channelId: number, message: SerializedMessage) {
-            this.channelMessages.get(channelId)!.push(message)
+            if (message == null) {
+                console.log('message undefined')
+                return
+            }
+
+            if (this.channelMessages.has(channelId)) {
+                this.channelMessages.get(channelId)!.push(message)
+            } else {
+                this.channelMessages.set(channelId, [message])
+            }
+        },
+        setActiveChannel(channelId: number) {
+            this.activeChannelId = channelId
         },
     },
 })
