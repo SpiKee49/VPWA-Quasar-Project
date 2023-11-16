@@ -1,36 +1,40 @@
-import AuthManager from 'src/services/AuthManager'
+import { ChannelSocket } from 'src/boot/socket'
 import { SerializedMessage } from '../contracts/Message'
-import { Socket } from 'socket.io-client'
-import { SocketManager } from 'src/boot/socket'
+import { api } from 'src/boot/axios'
 import { defineStore } from 'pinia'
 import { useUserStore } from './user-store'
 
 interface MessageState {
     //create Maps for channel messages, and individual connections to WS
     channelMessages: Map<number, SerializedMessage[]>
-    channelSocket: Socket | null
 }
 
 export const useMessageStore = defineStore('messages', {
     state: (): MessageState => ({
         channelMessages: new Map<number, SerializedMessage[]>(),
-        channelSocket: null,
     }),
+    getters: {
+        getMessages: (state) => state.channelMessages,
+    },
     actions: {
-        async initializeChannelsSocket() {
-            this.channelSocket = SocketManager.socket('/channels', {
-                auth: { token: AuthManager.getToken() },
-            })
-
-            this.channelSocket.on('connect', () => {
-                console.log('Ws id:' + this.channelSocket?.id)
-            })
-
+        initializeChannelsSocket() {
             const userStore = useUserStore()
-            this.channelSocket.emit(
+            ChannelSocket!.emit(
                 'joinRooms',
                 userStore.user?.channels.map((channel) => channel.id.toString())
             )
+        },
+        async initiallyLoadMessages(channelId: number) {
+            const res = await api.get(`channels/${channelId}/messages`)
+            const messages = res.data as SerializedMessage[]
+
+            if (messages.length <= 0) return
+
+            this.channelMessages.set(channelId, messages)
+        },
+
+        appendMessage(channelId: number, message: SerializedMessage) {
+            this.channelMessages.get(channelId)!.push(message)
         },
     },
 })
