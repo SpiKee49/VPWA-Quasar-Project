@@ -1,13 +1,17 @@
-import { Socket, io } from 'socket.io-client'
+import { Manager, Socket } from 'socket.io-client'
 
-import { boot } from 'quasar/wrappers'
-
-const socketInstance: Socket = io(process.env.API_URL!)
-
-export default boot(() => {
-    socketInstance.on('connect', () => {
-        console.log('WebSockets successfully connected id:' + socketInstance.id)
+function emitAsync<T>(
+    socket: Socket,
+    event: string,
+    ...args: any[]
+): Promise<T> {
+    return new Promise((resolve, reject) => {
+        socket.emit(event, ...args, (error: Error | null, response: T) => {
+            error ? reject(error) : resolve(response)
+        })
     })
-})
+}
 
-export { socketInstance }
+const SocketManager: Manager = new Manager(process.env.API_URL)
+
+export { SocketManager, emitAsync }
