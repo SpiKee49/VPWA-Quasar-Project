@@ -9,7 +9,7 @@
             <p class="q-ma-none q-ml-sm">Someone is typing...</p>
         </q-btn>
         <q-input
-            @keydown.enter="() => {}"
+            @keydown.enter="sendMessage"
             v-model.trim="inputText"
             type="text"
             placeholder="Start typing..."
@@ -40,7 +40,26 @@
 import { MessageType } from 'src/types/messageTypes'
 import CustomDialog from './CustomDialog.vue'
 import { ref, reactive } from 'vue'
+import { useMessageStore } from '../stores/message-store'
+import { emitMessage } from 'src/boot/socket'
+import { useUserStore } from '../stores/user-store'
 
+const messageStore = useMessageStore()
+const userStore = useUserStore()
+
+function sendMessage() {
+    emitMessage(messageStore.getActiveChannel, inputText.value)
+    messageStore.appendMessage(messageStore.getActiveChannel, {
+        id: Math.max(...messageStore.getMessages.map((msg) => msg.id)) + 1,
+        createdBy: userStore.getUserData!.id,
+        author: userStore.getUserData!,
+        channelId: messageStore.getActiveChannel,
+        content: inputText.value,
+        createdAt: Date.now().toString(),
+        updatedAt: Date.now().toString(),
+    })
+    inputText.value = ''
+}
 const inputText = ref('')
 const dialogOpen = ref(false)
 const messages = reactive<MessageType[]>([

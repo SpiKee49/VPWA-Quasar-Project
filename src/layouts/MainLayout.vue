@@ -36,7 +36,7 @@
             <router-view />
         </q-page-container>
         <q-footer v-model="showFooter" reveal>
-            <Footer />
+            <Footer></Footer>
         </q-footer>
     </q-layout>
 </template>
@@ -48,9 +48,14 @@ import ChannelMembers from 'src/components/Channels/ChannelMembers.vue'
 import Footer from 'src/components/Footer.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '../stores/user-store'
+import { useMessageStore } from '../stores/message-store'
+
+//Stores
+const userStore = useUserStore()
+const messageStore = useMessageStore()
 
 const rightDrawerOpen = ref(false)
-
 const showFooter = ref(false)
 const route = useRoute()
 const displayFooter = () => {
@@ -60,7 +65,9 @@ const displayFooter = () => {
         showFooter.value = false
     }
 }
-onMounted(displayFooter)
+onMounted(() => {
+    displayFooter()
+})
 watch(route, displayFooter)
 
 function toggleRightDrawer() {

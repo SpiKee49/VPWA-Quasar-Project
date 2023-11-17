@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', {
         getUserData: (state) => state.user,
         isLoading: (state) => state.status === 'pending',
         isAuthenticated: (state) => state.user !== null,
+        getUserChannels: (state) => state.user!.channels,
     },
     actions: {
         async check() {
@@ -29,6 +30,7 @@ export const useUserStore = defineStore('user', {
                 const user = await authService.me()
                 this.status = 'success'
                 this.user = user
+                console.log('## user-channels ##', user?.channels)
                 return user !== null
             } catch (errors) {
                 this.status = 'error'
@@ -69,6 +71,7 @@ export const useUserStore = defineStore('user', {
                 await authService.logout()
                 this.status = 'success'
                 authManager.removeToken()
+                this.router.replace('/login')
             } catch (errors) {
                 this.status = 'error'
                 this.errors = errors as typeof this.errors

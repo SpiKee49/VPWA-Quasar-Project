@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/IndexPage.vue'),
             },
             {
-                path: '/:id',
+                path: ':id',
                 component: () => import('pages/channels/ChannelPage.vue'),
             },
         ],
