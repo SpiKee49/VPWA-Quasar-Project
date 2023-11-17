@@ -50,24 +50,19 @@
                     openDialog = true
                     dialog.title = 'Join channel'
                     dialog.isAdd = false
-                    console.log('dialog', dialog.title)
                 }
             "
         />
     </div>
     <CustomDialog
-        v-model="openDialog"
+        v-model:dialog-value="openDialog"
+        v-model:toggle-value="isPrivate"
         :title="dialog.title"
         :btn-text="dialog.btnText"
         :hide-btn="!dialog.isAdd"
         :show-toggle="dialog.isAdd"
         :toggle-text="dialog.isAdd ? 'Private channel' : ''"
-        :on-click="
-            () => {
-                openDialog = false
-                newChannelName = ''
-            }
-        "
+        :on-click="createChannel"
     >
         <q-input
             v-if="dialog.isAdd"
@@ -104,6 +99,10 @@ import CustomDialog from '../CustomDialog.vue'
 import { useMessageStore } from '../../stores/message-store'
 import { useUserStore } from '../../stores/user-store'
 import { useRoute } from 'vue-router'
+import { api } from 'src/boot/axios'
+import { WarningNotification } from 'src/boot/notifications'
+import { ChannelSocket } from 'src/boot/socket'
+import { Channel } from 'src/contracts'
 
 const route = useRoute()
 
@@ -121,7 +120,26 @@ onBeforeMount(() => {
 })
 
 const newChannelName = ref<string>('')
+const isPrivate = ref<boolean>(false)
 const openDialog = ref(false)
+
+async function createChannel() {
+    if (newChannelName.value === '') {
+        WarningNotification('Channel name is required for new channel')
+        return
+    }
+
+    const response = await api.post<Channel>('channels/new', {
+        name: newChannelName.value,
+        isPrivate: isPrivate.value,
+    })
+
+    if (response.status === 200) {
+        const newChannel = response.data
+        userStore.check()
+        ChannelSocket?.emit('joinRooms', [newChannel.id])
+    }
+}
 
 const dialog = reactive<DialogProps>({
     title: 'New channel',

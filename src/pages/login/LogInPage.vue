@@ -76,6 +76,7 @@ import { useUserStore } from 'src/stores/user-store'
 import { LoginCredentials, RegisterData } from '../../contracts/Auth'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
+import { SuccessNotification } from 'src/boot/notifications'
 
 const router = useRouter()
 const $q = useQuasar()
@@ -98,12 +99,7 @@ async function submitForm() {
     } else {
         const { remember: _, ...registerCred } = credentials
         await userStore.register(registerCred)
-        $q.notify({
-            position: 'top',
-            color: 'positive',
-            message:
-                "You've been registered successfuly, continue by logging in",
-        })
+        SuccessNotification('Successfully registered, please log in.')
         isLogin.value = true
     }
 }

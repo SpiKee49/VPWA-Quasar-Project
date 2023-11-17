@@ -6,18 +6,22 @@ import { useUserStore } from './user-store'
 
 interface MessageState {
     //create Maps for channel messages, and individual connections to WS
-    channelMessages: Map<number, SerializedMessage[]>
+    channelMessages: { [key: number]: SerializedMessage[] }
     activeChannelId: number
 }
 
 export const useMessageStore = defineStore('messages', {
     state: (): MessageState => ({
-        channelMessages: new Map<number, SerializedMessage[]>(),
+        channelMessages: {},
         activeChannelId: 0,
     }),
     getters: {
-        getMessages: (state) =>
-            state.channelMessages.get(state.activeChannelId),
+        getMessages: (state) => {
+            const messages = state.channelMessages[state.activeChannelId]
+            if (messages == null || messages.length === 0) return []
+
+            return messages.sort((a, b) => a.id - b.id)
+        },
         getActiveChannel: (state) => state.activeChannelId,
     },
     actions: {
@@ -29,12 +33,10 @@ export const useMessageStore = defineStore('messages', {
             )
         },
         async loadMessages(channelId: number) {
-            const res = await api.post(`channels/${channelId}/messages`, {
-                offset: this.channelMessages.get(channelId)!.length ?? 0,
-            })
+            const res = await api.post(`channels/${channelId}/messages`)
             const messages = res.data as SerializedMessage[]
 
-            this.channelMessages.set(channelId, messages)
+            this.channelMessages[channelId] = messages
         },
 
         appendMessage(channelId: number, message: SerializedMessage) {
@@ -42,13 +44,12 @@ export const useMessageStore = defineStore('messages', {
                 console.log('message undefined')
                 return
             }
-
-            if (this.channelMessages.has(channelId)) {
-                this.channelMessages.get(channelId)!.push(message)
-            } else {
-                this.channelMessages.set(channelId, [message])
-            }
+            this.channelMessages[channelId] = [
+                message,
+                ...this.channelMessages[channelId],
+            ]
         },
+
         setActiveChannel(channelId: number) {
             this.activeChannelId = channelId
         },

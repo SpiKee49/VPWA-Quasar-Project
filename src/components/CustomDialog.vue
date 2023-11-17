@@ -1,7 +1,7 @@
 <template>
     <q-dialog
-        :model-value="modelValue"
-        @update:model-value="(value) => $emit('update:model-value', value)"
+        :model-value="dialogValue"
+        @update:model-value="(value) => $emit('update:dialogValue', value)"
     >
         <q-card style="min-width: 500px" flat>
             <q-card-section>
@@ -13,7 +13,10 @@
             <q-card-actions :align="btnPosition ?? 'right'" class="text-white">
                 <q-toggle
                     v-if="showToggle ?? false"
-                    v-model="toggleValue"
+                    :model-value="toggleValue"
+                    @update:model-value="
+                        (value) => $emit('update:toggleValue', value)
+                    "
                     color="info"
                     :label="toggleText ?? ''"
                     left-label
@@ -31,10 +34,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
 interface Props {
-    modelValue: boolean
+    dialogValue: boolean
+    toggleValue: boolean
     title: string
     btnText?: string
     btnColor?: string
@@ -45,7 +47,5 @@ interface Props {
     onClick?: () => void
 }
 defineProps<Props>()
-defineEmits(['update:model-value'])
-
-const toggleValue = ref(true)
+defineEmits(['update:dialogValue', 'update:toggleValue'])
 </script>

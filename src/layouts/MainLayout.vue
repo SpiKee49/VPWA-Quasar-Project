@@ -36,7 +36,7 @@
             <router-view />
         </q-page-container>
         <q-footer v-model="showFooter" reveal>
-            <Footer />
+            <Footer></Footer>
         </q-footer>
     </q-layout>
 </template>
