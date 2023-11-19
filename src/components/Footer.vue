@@ -77,9 +77,5 @@ const messages = reactive<MessageType[]>([
             'Look I know how is this going to look, but Im currently typing something too...',
         ],
     },
-    {
-        name: 'John Doe4',
-        text: ['OKAY, OKAY, SO WHAT? HUH?'],
-    },
 ])
 </script>
