@@ -23,7 +23,11 @@
             class="text-body1"
         />
     </div>
-    <CustomDialog v-model="dialogOpen" title="Currently typing" hide-btn>
+    <CustomDialog
+        v-model:dialog-value="dialogOpen"
+        title="Currently typing"
+        hide-btn
+    >
         <div style="width: 100%; max-height: 350px">
             <q-chat-message
                 v-for="msg in messages"
@@ -76,6 +80,10 @@ const messages = reactive<MessageType[]>([
         text: [
             'Look I know how is this going to look, but Im currently typing something too...',
         ],
+    },
+    {
+        name: 'John Doe4',
+        text: ['OKAY, OKAY, SO WHAT? HUH?'],
     },
 ])
 </script>

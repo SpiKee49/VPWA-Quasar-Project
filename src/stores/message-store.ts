@@ -1,6 +1,7 @@
 import { ChannelSocket } from 'src/boot/socket'
 import { SerializedMessage } from '../contracts/Message'
 import { api } from 'src/boot/axios'
+import { convertToCamel } from 'src/services/AuthService'
 import { defineStore } from 'pinia'
 import { useUserStore } from './user-store'
 
@@ -34,12 +35,15 @@ export const useMessageStore = defineStore('messages', {
         },
         async loadMessages(channelId: number) {
             const res = await api.post(`channels/${channelId}/messages`)
-            const messages = res.data as SerializedMessage[]
+            const messages = res.data.map((message: any) => {
+                return { ...message, author: convertToCamel(message.author) }
+            }) as SerializedMessage[]
 
             this.channelMessages[channelId] = messages
+            console.log('messages', this.channelMessages[channelId])
         },
 
-        appendMessage(channelId: number, message: SerializedMessage) {
+        appendMessage(channelId: number, message: any) {
             if (message == null) {
                 console.log('message undefined')
                 return

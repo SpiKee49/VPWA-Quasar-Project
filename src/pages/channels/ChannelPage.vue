@@ -21,9 +21,13 @@
                 >
                     <q-chat-message
                         :bg-color="
-                            isFromCurrentUser(msg.author) ? 'positive' : 'info'
+                            isFromCurrentUser(msg.author)
+                                ? 'positive'
+                                : hasUserTag(msg.content)
+                                ? 'warning'
+                                : 'info'
                         "
-                        :name="msg.author.email"
+                        :name="msg.author.userName"
                         :text="[msg.content]"
                         :sent="isFromCurrentUser(msg.author)"
                     />
@@ -49,6 +53,10 @@ onBeforeMount(() => {
 
 function isFromCurrentUser(author: User) {
     return author.id === userStore.user!.id
+}
+
+function hasUserTag(message: string) {
+    return message.includes(`@${userStore.user!.userName}`)
 }
 
 const onLoad = async (done: any) => {}

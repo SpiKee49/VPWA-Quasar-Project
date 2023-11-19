@@ -36,7 +36,7 @@
 <script setup lang="ts">
 interface Props {
     dialogValue: boolean
-    toggleValue: boolean
+    toggleValue?: boolean
     title: string
     btnText?: string
     btnColor?: string

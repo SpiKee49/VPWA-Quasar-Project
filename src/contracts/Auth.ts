@@ -1,4 +1,5 @@
 import { Channel } from './ChannelMessages'
+
 export interface ApiToken {
     type: 'bearer'
     token: string
@@ -7,6 +8,7 @@ export interface ApiToken {
 }
 
 export interface RegisterData {
+    userName: string
     email: string
     password: string
     passwordConfirmation: string
@@ -20,8 +22,18 @@ export interface LoginCredentials {
 
 export interface User {
     id: number
+    userName: string
     email: string
     channels: Channel[]
     createdAt: string
     updatedAt: string
+}
+
+export interface DbUser {
+    id: number
+    user_name: string
+    email: string
+    channels: Channel[]
+    created_at: string
+    updated_at: string
 }
