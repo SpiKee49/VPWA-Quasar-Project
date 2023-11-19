@@ -8,6 +8,7 @@ interface UserState {
     user: User | null
     status: 'pending' | 'success' | 'error'
     errors: { message: string; field?: string[] }[]
+    userActivity: 'online' | 'dnd' | 'offline'
 }
 
 export const useUserStore = defineStore('user', {
@@ -15,8 +16,10 @@ export const useUserStore = defineStore('user', {
         user: null,
         status: 'pending',
         errors: [],
+        userActivity: 'online',
     }),
     getters: {
+        getUserActivity: (state) => state.userActivity,
         getUserData: (state) => state.user,
         isLoading: (state) => state.status === 'pending',
         isAuthenticated: (state) => state.user !== null,
@@ -71,11 +74,14 @@ export const useUserStore = defineStore('user', {
                 await authService.logout()
                 this.status = 'success'
                 authManager.removeToken()
-                this.router.replace('/login')
+                this.router.replace('/auth/login')
             } catch (errors) {
                 this.status = 'error'
                 this.errors = errors as typeof this.errors
             }
+        },
+        setUserActivity(status: typeof this.userActivity) {
+            this.userActivity = status
         },
     },
 })

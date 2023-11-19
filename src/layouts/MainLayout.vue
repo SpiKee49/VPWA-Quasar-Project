@@ -46,19 +46,20 @@ import ChannelsComponent from 'components/Channels/ChannelsComponent.vue'
 import ProfileComponent from 'components/Profile/ProfileComponent.vue'
 import ChannelMembers from 'src/components/Channels/ChannelMembers.vue'
 import Footer from 'src/components/Footer.vue'
-import { onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, ref, watch, onBeforeMount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user-store'
 import { useChannelStore } from '../stores/channels-store'
 
 //Stores
 const userStore = useUserStore()
 const messageStore = useChannelStore()
+const router = useRouter()
+const route = useRoute()
 
 const rightDrawerOpen = ref(false)
 const showChannelMembers = ref(false)
 const showFooter = ref(false)
-const route = useRoute()
 const displayFooter = () => {
     if (route.fullPath.includes('channels/')) {
         showFooter.value = true
@@ -68,16 +69,33 @@ const displayFooter = () => {
         showChannelMembers.value = false
     }
 }
+
+function getAccessToChannel() {
+    const userHasAccess = userStore.getUserChannels
+        .map((channel) => channel.id)
+        .includes(+route.params.id)
+    messageStore.setActiveChannel(userHasAccess ? +route.params.id : 0)
+    if (!userHasAccess) {
+        router.push('/')
+    }
+}
+
+onBeforeMount(() => {
+    getAccessToChannel()
+})
+
 onMounted(() => {
     displayFooter()
     userStore.getUserChannels.forEach(
         async (channel) => await messageStore.loadMessages(channel.id)
     )
 })
-watch(route, displayFooter)
+watch(route, () => {
+    displayFooter()
+    getAccessToChannel()
+})
 
 function toggleRightDrawer() {
     rightDrawerOpen.value = !rightDrawerOpen.value
 }
 </script>
-../stores/channels-store

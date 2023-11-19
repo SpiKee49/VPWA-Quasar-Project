@@ -3,12 +3,20 @@
         class="row justify-between items-center q-pa-sm bg-info q-ma-none text-bold"
     >
         <p class="q-ma-none">Channel members</p>
-        <q-btn
-            color="white"
-            flat
-            icon="fa-solid fa-user-plus"
-            @click="showModal = true"
-        />
+        <div class="flex row justify-right">
+            <q-btn
+                color="white"
+                flat
+                icon="fa-solid fa-user-plus"
+                @click="showModal = true"
+            />
+            <q-btn
+                color="white"
+                flat
+                icon="fa-solid fa-door-open"
+                @click="leaveChannel(messageStore.getActiveChannel)"
+            />
+        </div>
     </div>
     <q-list>
         <q-item
@@ -55,19 +63,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import CustomDialog from '../CustomDialog.vue'
 import { useChannelStore } from '../../stores/channels-store'
 import { User } from 'src/contracts/Auth'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '../../stores/user-store'
+import { api } from 'src/boot/axios'
+import { ChannelSocket } from 'src/boot/socket'
 
+const route = useRoute()
+const router = useRouter()
 const messageStore = useChannelStore()
-const channelMembers = reactive<User[]>([])
-onMounted(async () => {
-    const memembers = await messageStore.loadMembers()
-    channelMembers.push(...memembers)
-})
-
+const userStore = useUserStore()
 const showModal = ref(false)
 const inviteUserName = ref('')
+const channelMembers = ref<User[]>([])
+
+async function fetchMembers() {
+    const memembers = await messageStore.loadMembers()
+    channelMembers.value = [...memembers]
+}
+
+async function leaveChannel(channelId: number) {
+    const response = await api.get(`/channels/${channelId}/leave`)
+
+    if (response.status === 200) {
+        await userStore.check()
+        ChannelSocket!.emit('leaveRoom', channelId)
+        router.push('/')
+    }
+}
+
+onMounted(() => {
+    fetchMembers()
+})
+
+watch(route, fetchMembers)
 </script>
-../../stores/channels-store

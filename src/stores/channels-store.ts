@@ -7,7 +7,6 @@ import { defineStore } from 'pinia'
 import { useUserStore } from './user-store'
 
 interface MessageState {
-    //create Maps for channel messages, and individual connections to WS
     channelMessages: { [key: number]: SerializedMessage[] }
     activeChannelId: number
 }
@@ -42,6 +41,15 @@ export const useChannelStore = defineStore('messages', {
             }) as SerializedMessage[]
 
             this.channelMessages[channelId] = messages
+        },
+
+        getChannelById(channelId: number) {
+            const userStore = useUserStore()
+
+            const channel = userStore.getUserChannels.find(
+                (channel) => channel.id === channelId
+            )
+            return channel
         },
 
         async loadMembers() {

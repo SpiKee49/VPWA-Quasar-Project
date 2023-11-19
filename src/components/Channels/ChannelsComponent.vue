@@ -142,7 +142,7 @@ const dialog = reactive<DialogProps>({
 
 onBeforeMount(() => {
     messageStore.joinRooms()
-    messageStore.setActiveChannel(+route.params.id)
+
     fetchChannels()
 })
 
