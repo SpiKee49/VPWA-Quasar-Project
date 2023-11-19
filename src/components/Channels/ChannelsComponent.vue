@@ -103,8 +103,10 @@ import { api } from 'src/boot/axios'
 import { WarningNotification } from 'src/boot/notifications'
 import { ChannelSocket } from 'src/boot/socket'
 import { Channel } from 'src/contracts'
+import { useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 
 interface DialogProps {
     title: string
@@ -138,6 +140,9 @@ async function createChannel() {
         const newChannel = response.data
         userStore.check()
         ChannelSocket?.emit('joinRooms', [newChannel.id])
+        await messageStore.loadMessages(newChannel.id)
+        openDialog.value = false
+        router.push(`/channels/${newChannel.id}`)
     }
 }
 

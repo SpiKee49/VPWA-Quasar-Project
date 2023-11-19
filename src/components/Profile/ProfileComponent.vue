@@ -1,7 +1,10 @@
 <template>
     <q-card class="my-card" square flat>
         <q-card-section class="bg-info text-white row justify-between">
-            <div class="text-h6">{{ userStore.user?.userName }}</div>
+            <div class="flex-row">
+                <p class="text-h6 q-ma-none">{{ userStore.user?.userName }}</p>
+                <p class="text-caption">{{ userStore.user?.email }}</p>
+            </div>
             <q-btn
                 color="white"
                 flat

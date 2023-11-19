@@ -12,15 +12,15 @@
     </div>
     <q-list>
         <q-item
-            v-for="item in [1, 2, 3, 4, 5, 6, 7]"
-            :key="item"
+            v-for="member in channelMembers"
+            :key="member.id"
             clickable
             v-ripple
         >
             <q-item-section avatar>
                 <q-icon color="white" size="sm" name="fa-solid fa-user" />
             </q-item-section>
-            <q-item-section>@username{{ item }}</q-item-section>
+            <q-item-section>@{{ member.userName }}</q-item-section>
             <q-menu fit transition-show="fade" transition-hide="fade">
                 <q-list flat style="min-width: 200px" class="bg-darker">
                     <q-item clickable v-close-popup class="text-red">
@@ -40,7 +40,7 @@
         </q-item>
     </q-list>
     <CustomDialog
-        v-model="showModal"
+        v-model:dialog-value="showModal"
         title="Invite people"
         btn-text="Invite"
         :onClick="() => {}"
@@ -55,8 +55,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import CustomDialog from '../CustomDialog.vue'
+import { useMessageStore } from '../../stores/message-store'
+import { User } from 'src/contracts/Auth'
+
+const messageStore = useMessageStore()
+const channelMembers = reactive<User[]>([])
+onMounted(async () => {
+    const memembers = await messageStore.loadMembers()
+    channelMembers.push(...memembers)
+})
 
 const showModal = ref(false)
 const inviteUserName = ref('')

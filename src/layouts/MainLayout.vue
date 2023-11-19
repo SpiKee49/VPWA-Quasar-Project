@@ -29,7 +29,7 @@
 
         <q-drawer v-model="rightDrawerOpen" side="right" behavior="desktop">
             <ProfileComponent />
-            <ChannelMembers />
+            <ChannelMembers v-if="showChannelMembers" />
         </q-drawer>
 
         <q-page-container>
@@ -56,13 +56,16 @@ const userStore = useUserStore()
 const messageStore = useMessageStore()
 
 const rightDrawerOpen = ref(false)
+const showChannelMembers = ref(false)
 const showFooter = ref(false)
 const route = useRoute()
 const displayFooter = () => {
-    if (route.fullPath.includes('channels')) {
+    if (route.fullPath.includes('channels/')) {
         showFooter.value = true
+        showChannelMembers.value = true
     } else {
         showFooter.value = false
+        showChannelMembers.value = false
     }
 }
 onMounted(() => {

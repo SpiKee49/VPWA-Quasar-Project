@@ -1,5 +1,6 @@
 import { ChannelSocket } from 'src/boot/socket'
 import { SerializedMessage } from '../contracts/Message'
+import { User } from 'src/contracts'
 import { api } from 'src/boot/axios'
 import { convertToCamel } from 'src/services/AuthService'
 import { defineStore } from 'pinia'
@@ -33,6 +34,7 @@ export const useMessageStore = defineStore('messages', {
                 userStore.user?.channels.map((channel) => channel.id.toString())
             )
         },
+
         async loadMessages(channelId: number) {
             const res = await api.post(`channels/${channelId}/messages`)
             const messages = res.data.map((message: any) => {
@@ -40,7 +42,17 @@ export const useMessageStore = defineStore('messages', {
             }) as SerializedMessage[]
 
             this.channelMessages[channelId] = messages
-            console.log('messages', this.channelMessages[channelId])
+        },
+
+        async loadMembers() {
+            const res = await api.get(
+                `channels/${this.activeChannelId}/members`
+            )
+            const members = res.data.map((member: any) =>
+                convertToCamel(member)
+            )
+
+            return members as User[]
         },
 
         appendMessage(channelId: number, message: any) {
