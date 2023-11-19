@@ -4,7 +4,7 @@ import AuthManager from 'src/services/AuthManager'
 import { SerializedMessage } from 'src/contracts'
 import { boot } from 'quasar/wrappers'
 import { convertToCamel } from 'src/services/AuthService'
-import { useMessageStore } from '../stores/message-store'
+import { useChannelStore } from '../stores/channels-store'
 
 const SocketManager: Manager = new Manager(process.env.API_URL)
 
@@ -38,7 +38,7 @@ export default boot(({ store }) => {
     })
 
     ChannelSocket!.on('newMessage', ({ channelId, message }) => {
-        const messageStore = useMessageStore(store)
+        const messageStore = useChannelStore(store)
         const updatedMessage: SerializedMessage = {
             ...message,
             author: convertToCamel(message.author),

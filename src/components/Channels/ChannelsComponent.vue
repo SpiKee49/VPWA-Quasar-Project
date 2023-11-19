@@ -20,11 +20,6 @@
                 <q-item-section class="text-white">
                     Channel #{{ channel.name }}
                 </q-item-section>
-                <!-- <q-badge
-                    color="info"
-                    align="top"
-                    rounded
-                /> -->
             </q-item>
         </q-list>
         <q-btn
@@ -72,21 +67,36 @@
             autofocus
             @keyup.enter="openDialog = false"
         />
-        <div v-else style="max-height: 200px" class="height-full">
+        <q-input
+            v-if="!dialog.isAdd"
+            color="info"
+            dense
+            v-model="searchedChannel"
+            autofocus
+            debounce="500"
+            label="Search for channel"
+            :loading="loadingChannels"
+        />
+        <div v-if="!dialog.isAdd" style="max-height: 200px" class="height-full">
+            <div
+                v-if="joinableChannels.length === 0"
+                class="column text-center items-center justify-center"
+            >
+                <h4>No channels found</h4>
+                <p>Try different filter</p>
+            </div>
             <q-list>
                 <q-item
-                    v-for="channel in [
-                        1, 2, 4, 5, 5, 6, 67, 5, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-                        8,
-                    ]"
-                    :key="channel"
+                    v-for="channel in joinableChannels"
+                    :key="channel.id"
                     clickable
+                    @click="joinChannel(channel.id)"
                     v-ripple
                 >
                     <q-item-section avatar>
                         <q-icon color="white" name="fa-solid fa-message" />
                     </q-item-section>
-                    <q-item-section>Channel #{{ channel }} name</q-item-section>
+                    <q-item-section>#{{ channel.name }}</q-item-section>
                 </q-item>
             </q-list>
         </div>
@@ -94,9 +104,9 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import CustomDialog from '../CustomDialog.vue'
-import { useMessageStore } from '../../stores/message-store'
+import { useChannelStore } from '../../stores/channels-store'
 import { useUserStore } from '../../stores/user-store'
 import { useRoute } from 'vue-router'
 import { api } from 'src/boot/axios'
@@ -105,25 +115,36 @@ import { ChannelSocket } from 'src/boot/socket'
 import { Channel } from 'src/contracts'
 import { useRouter } from 'vue-router'
 
-const route = useRoute()
-const router = useRouter()
-
 interface DialogProps {
     title: string
     btnText: string
     isAdd: boolean
 }
-const messageStore = useMessageStore()
+
+const route = useRoute()
+const router = useRouter()
+
+const messageStore = useChannelStore()
 const userStore = useUserStore()
+
+const newChannelName = ref<string>('')
+const searchedChannel = ref<string>('')
+const isPrivate = ref<boolean>(false)
+const openDialog = ref(false)
+const joinableChannels = ref<Channel[]>([])
+const loadingChannels = ref(false)
+
+const dialog = reactive<DialogProps>({
+    title: 'New channel',
+    btnText: 'Add channel',
+    isAdd: true,
+})
 
 onBeforeMount(() => {
     messageStore.joinRooms()
     messageStore.setActiveChannel(+route.params.id)
+    fetchChannels()
 })
-
-const newChannelName = ref<string>('')
-const isPrivate = ref<boolean>(false)
-const openDialog = ref(false)
 
 async function createChannel() {
     if (newChannelName.value === '') {
@@ -138,17 +159,46 @@ async function createChannel() {
 
     if (response.status === 200) {
         const newChannel = response.data
-        userStore.check()
+        await userStore.check()
         ChannelSocket?.emit('joinRooms', [newChannel.id])
         await messageStore.loadMessages(newChannel.id)
         openDialog.value = false
         router.push(`/channels/${newChannel.id}`)
+        messageStore.setActiveChannel(newChannel.id)
     }
 }
 
-const dialog = reactive<DialogProps>({
-    title: 'New channel',
-    btnText: 'Add channel',
-    isAdd: true,
-})
+async function fetchChannels() {
+    loadingChannels.value = true
+
+    const res = await api.get<Channel[]>(
+        `/channels/joinable${
+            searchedChannel.value !== ''
+                ? `?search=${searchedChannel.value}`
+                : ''
+        }`
+    )
+
+    const channels = res.data
+
+    if (res.status === 200) {
+        loadingChannels.value = false
+        joinableChannels.value = [...channels]
+    }
+}
+
+async function joinChannel(channelId: number) {
+    const response = await api.post(`/channels/${channelId}/join`)
+
+    if (response.status === 200) {
+        await userStore.check()
+        await messageStore.loadMessages(channelId)
+        ChannelSocket?.emit('joinRooms', [channelId])
+        openDialog.value = false
+        router.push(`/channels/${channelId}`)
+        messageStore.setActiveChannel(channelId)
+    }
+}
+
+watch(searchedChannel, fetchChannels)
 </script>

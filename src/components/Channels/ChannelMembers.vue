@@ -57,10 +57,10 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import CustomDialog from '../CustomDialog.vue'
-import { useMessageStore } from '../../stores/message-store'
+import { useChannelStore } from '../../stores/channels-store'
 import { User } from 'src/contracts/Auth'
 
-const messageStore = useMessageStore()
+const messageStore = useChannelStore()
 const channelMembers = reactive<User[]>([])
 onMounted(async () => {
     const memembers = await messageStore.loadMembers()
@@ -70,3 +70,4 @@ onMounted(async () => {
 const showModal = ref(false)
 const inviteUserName = ref('')
 </script>
+../../stores/channels-store

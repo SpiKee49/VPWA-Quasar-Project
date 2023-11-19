@@ -40,16 +40,13 @@
 <script setup lang="ts">
 import { User } from 'src/contracts'
 import { useUserStore } from 'src/stores/user-store'
-import { useMessageStore } from 'src/stores/message-store'
-import { ref, onBeforeMount } from 'vue'
+import { useChannelStore } from 'src/stores/channels-store'
+import { ref } from 'vue'
 
 const userStore = useUserStore()
-const messageStore = useMessageStore()
+const messageStore = useChannelStore()
 
 const scrollRef = ref()
-onBeforeMount(() => {
-    messageStore.loadMessages(messageStore.getActiveChannel)
-})
 
 function isFromCurrentUser(author: User) {
     return author.id === userStore.user!.id

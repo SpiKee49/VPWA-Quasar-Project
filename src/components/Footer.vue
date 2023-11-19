@@ -44,11 +44,11 @@
 import { MessageType } from 'src/types/messageTypes'
 import CustomDialog from './CustomDialog.vue'
 import { ref, reactive } from 'vue'
-import { useMessageStore } from '../stores/message-store'
+import { useChannelStore } from '../stores/channels-store'
 import { emitMessage } from 'src/boot/socket'
 import { useUserStore } from '../stores/user-store'
 
-const messageStore = useMessageStore()
+const messageStore = useChannelStore()
 const userStore = useUserStore()
 
 function sendMessage() {
@@ -87,3 +87,4 @@ const messages = reactive<MessageType[]>([
     },
 ])
 </script>
+../stores/channels-store

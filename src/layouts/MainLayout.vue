@@ -49,11 +49,11 @@ import Footer from 'src/components/Footer.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user-store'
-import { useMessageStore } from '../stores/message-store'
+import { useChannelStore } from '../stores/channels-store'
 
 //Stores
 const userStore = useUserStore()
-const messageStore = useMessageStore()
+const messageStore = useChannelStore()
 
 const rightDrawerOpen = ref(false)
 const showChannelMembers = ref(false)
@@ -70,6 +70,9 @@ const displayFooter = () => {
 }
 onMounted(() => {
     displayFooter()
+    userStore.getUserChannels.forEach(
+        async (channel) => await messageStore.loadMessages(channel.id)
+    )
 })
 watch(route, displayFooter)
 
@@ -77,3 +80,4 @@ function toggleRightDrawer() {
     rightDrawerOpen.value = !rightDrawerOpen.value
 }
 </script>
+../stores/channels-store
