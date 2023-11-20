@@ -38,6 +38,7 @@ export default boot(({ store }) => {
     })
 
     ChannelSocket!.on('newMessage', ({ channelId, message }) => {
+        console.log(`New message in channel ${channelId}`)
         const messageStore = useChannelStore(store)
         const updatedMessage: SerializedMessage = {
             ...message,
@@ -45,12 +46,12 @@ export default boot(({ store }) => {
         }
         messageStore.appendMessage(channelId, updatedMessage)
 
-        const title = messageStore.getChannelById(channelId)?.name
+        // const title = messageStore.getChannelById(channelId)?.name
 
-        sendNotification(
-            `New message in ${title ?? ''}`,
-            `${updatedMessage.author.userName}: ${updatedMessage.content}`
-        )
+        // sendNotification(
+        //     `New message in ${title ?? ''}`,
+        //     `${updatedMessage.author.userName}: ${updatedMessage.content}`
+        // )
     })
 })
 
