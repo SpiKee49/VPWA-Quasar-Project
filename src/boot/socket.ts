@@ -6,6 +6,7 @@ import { boot } from 'quasar/wrappers'
 import { convertToCamel } from 'src/services/AuthService'
 import { sendNotification } from './notifications'
 import { useChannelStore } from '../stores/channels-store'
+import { useUserStore } from '../stores/user-store'
 
 const SocketManager: Manager = new Manager(process.env.API_URL)
 
@@ -16,7 +17,7 @@ function emitMessage(channelId: number, message: string) {
     ChannelSocket!.emit('addMessage', { channelId, message })
 }
 
-export default boot(({ store }) => {
+export default boot(({ store, router }) => {
     ChannelSocket = SocketManager.socket('/channels', {
         auth: { token: AuthManager.getToken() },
     })
@@ -52,6 +53,16 @@ export default boot(({ store }) => {
         //     `New message in ${title ?? ''}`,
         //     `${updatedMessage.author.userName}: ${updatedMessage.content}`
         // )
+    })
+
+    ChannelSocket!.on('channelDeleted', (channelId: number) => {
+        const userStore = useUserStore(store)
+        const channelStore = useChannelStore(store)
+        ChannelSocket!.emit('leaveRoom', channelId)
+        userStore.check()
+        if (channelStore.activeChannelId === channelId) {
+            router.push('/')
+        }
     })
 })
 

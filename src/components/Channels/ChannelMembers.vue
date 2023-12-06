@@ -7,14 +7,24 @@
             <q-btn
                 color="white"
                 flat
+                size="12px"
                 icon="fa-solid fa-user-plus"
                 @click="showModal = true"
             />
             <q-btn
                 color="white"
                 flat
+                size="12px"
                 icon="fa-solid fa-door-open"
                 @click="leaveChannel(messageStore.getActiveChannel)"
+            />
+            <q-btn
+                v-if="isOwner"
+                color="white"
+                flat
+                size="12px"
+                icon="fa-solid fa-trash"
+                @click="deleteChannel(messageStore.getActiveChannel)"
             />
         </div>
     </div>
@@ -51,7 +61,7 @@
         v-model:dialog-value="showModal"
         title="Invite people"
         btn-text="Invite"
-        :onClick="() => {}"
+        :onClick="inviteToChannel"
     >
         <q-input
             v-model="inviteUserName"
@@ -71,9 +81,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user-store'
 import { api } from 'src/boot/axios'
 import { ChannelSocket } from 'src/boot/socket'
+import { InfoNotification } from 'src/boot/notifications'
 
 const route = useRoute()
 const router = useRouter()
+const isOwner = ref<boolean>(false)
 const messageStore = useChannelStore()
 const userStore = useUserStore()
 const showModal = ref(false)
@@ -95,9 +107,45 @@ async function leaveChannel(channelId: number) {
     }
 }
 
+async function inviteToChannel() {
+    if (inviteUserName.value === '') return
+
+    const response = await api.post(
+        `channels/${messageStore.getActiveChannel}/invite`,
+        { inviteUserName }
+    )
+
+    if (response.status === 200) {
+        ChannelSocket!.emit('inviteToChannel', inviteUserName)
+        InfoNotification('User invited successfully')
+    }
+}
+
+async function deleteChannel(channelId: number) {
+    ChannelSocket!.emit('deleteChannel', channelId)
+    await userStore.check()
+    router.push('/')
+}
+
+function getOwner() {
+    const foundChannel = userStore.getUserChannels.find(
+        (channel) => channel.id === messageStore.activeChannelId
+    )
+    isOwner.value = foundChannel?.created_by === userStore.getUserData?.id
+
+    console.log({
+        foundChannel,
+        value: isOwner.value,
+        userId: userStore.getUserData?.id,
+    })
+}
+
 onMounted(() => {
     fetchMembers()
 })
 
-watch(route, fetchMembers)
+watch(route, () => {
+    fetchMembers()
+    getOwner()
+})
 </script>
