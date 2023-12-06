@@ -1,34 +1,32 @@
-import { useQuasar } from 'quasar'
-
-const $q = useQuasar()
+import { Notify } from 'quasar'
 
 function SuccessNotification(text: string) {
-    $q.notify({
+    Notify.create({
         position: 'top',
         color: 'positive',
-        message: "You've been registered successfuly, continue by logging in",
+        message: text,
     })
 }
 
 function WarningNotification(text: string) {
-    $q.notify({
+    Notify.create({
         position: 'top',
         color: 'warning',
-        message: "You've been registered successfuly, continue by logging in",
+        message: text,
     })
 }
 function ErrorNotification(text: string) {
-    $q.notify({
+    Notify.create({
         position: 'top',
         color: 'error',
-        message: "You've been registered successfuly, continue by logging in",
+        message: text,
     })
 }
 function InfoNotification(text: string) {
-    $q.notify({
+    Notify.create({
         position: 'top',
         color: 'info',
-        message: "You've been registered successfuly, continue by logging in",
+        message: text,
     })
 }
 

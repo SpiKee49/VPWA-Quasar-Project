@@ -19,6 +19,9 @@
         </div>
     </div>
     <q-list>
+        <q-item class="text-center">
+            <p class="full-width">-- No members in channel --</p>
+        </q-item>
         <q-item
             v-for="member in channelMembers"
             :key="member.id"
@@ -35,7 +38,7 @@
                         <q-item-section avatar>
                             <q-icon color="red" name="fa-solid fa-door-open" />
                         </q-item-section>
-                        <q-item-section> Kick </q-item-section>
+                        <q-item-section>Kick</q-item-section>
                     </q-item>
                     <q-item clickable v-close-popup class="text-red">
                         <q-item-section avatar>

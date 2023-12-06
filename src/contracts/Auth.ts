@@ -23,6 +23,7 @@ export interface LoginCredentials {
 export interface User {
     id: number
     userName: string
+    status: 1 | 2 | 3
     email: string
     channels: Channel[]
     createdAt: string
