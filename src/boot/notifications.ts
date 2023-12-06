@@ -18,7 +18,7 @@ function WarningNotification(text: string) {
 function ErrorNotification(text: string) {
     Notify.create({
         position: 'top',
-        color: 'error',
+        color: 'negative',
         message: text,
     })
 }

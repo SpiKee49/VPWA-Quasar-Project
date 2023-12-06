@@ -14,6 +14,7 @@ export function convertToCamel(user: DbUser): User {
         id: user.id,
         userName: user.user_name,
         email: user.email,
+        status: user.status,
         channels: user.channels,
         createdAt: user.created_at,
         updatedAt: user.updated_at,

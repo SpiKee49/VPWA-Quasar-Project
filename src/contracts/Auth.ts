@@ -34,6 +34,7 @@ export interface DbUser {
     id: number
     user_name: string
     email: string
+    status: 1 | 2 | 3
     channels: Channel[]
     created_at: string
     updated_at: string

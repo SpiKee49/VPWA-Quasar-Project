@@ -8,12 +8,14 @@ import { useUserStore } from './user-store'
 
 interface MessageState {
     channelMessages: { [key: number]: SerializedMessage[] }
+    currentlyTypingMessages: { [channelId: number]: Map<string, string> }
     activeChannelId: number
 }
 
 export const useChannelStore = defineStore('messages', {
     state: (): MessageState => ({
         channelMessages: {},
+        currentlyTypingMessages: {},
         activeChannelId: 0,
     }),
     getters: {
@@ -24,6 +26,10 @@ export const useChannelStore = defineStore('messages', {
             return messages.sort((a, b) => a.id - b.id)
         },
         getActiveChannel: (state) => state.activeChannelId,
+        getTypingMessages: (state) =>
+            state.activeChannelId in state.currentlyTypingMessages
+                ? state.currentlyTypingMessages[state.activeChannelId]
+                : new Map(),
     },
     actions: {
         joinRooms() {
@@ -80,6 +86,14 @@ export const useChannelStore = defineStore('messages', {
 
             //leave room, user is no longer part of
             ChannelSocket!.emit('leaveChannel', channelId)
+        },
+
+        setCurrentlyTypingMessages(
+            channelId: number,
+            messages: Map<string, string>
+        ) {
+            console.log('[IN CHANNELS-STORE]', messages)
+            this.currentlyTypingMessages[channelId] = messages
         },
 
         setActiveChannel(channelId: number) {

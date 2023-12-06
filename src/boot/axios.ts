@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 
+import { ErrorNotification } from './notifications'
 import { authManager } from 'src/services'
 import { boot } from 'quasar/wrappers'
 
@@ -61,7 +62,7 @@ api.interceptors.response.use(
         if (DEBUG) {
             console.error('<- ', error.response)
         }
-
+        ErrorNotification('Error processing request')
         // server api request returned unathorized response so we trrigger logout
         if (
             error.response.status === 401 &&

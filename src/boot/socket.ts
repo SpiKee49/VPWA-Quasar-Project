@@ -4,7 +4,6 @@ import AuthManager from 'src/services/AuthManager'
 import { SerializedMessage } from 'src/contracts'
 import { boot } from 'quasar/wrappers'
 import { convertToCamel } from 'src/services/AuthService'
-import { sendNotification } from './notifications'
 import { useChannelStore } from '../stores/channels-store'
 import { useUserStore } from '../stores/user-store'
 
@@ -54,10 +53,33 @@ export default boot(({ store, router }) => {
         //     `${updatedMessage.author.userName}: ${updatedMessage.content}`
         // )
     })
+    ChannelSocket!.on('newChannelInvite', (channelId) => {
+        console.log(`New channelInvite`)
+        const userStore = useUserStore(store)
+        const channelStore = useChannelStore(store)
+        userStore.check()
+        channelStore.loadMessages(channelId)
+        setTimeout(channelStore.joinRooms, 1000)
+    })
+    ChannelSocket!.on('updateMembers', (channelId) => {
+        console.log(`New channelInvite`)
+        const userStore = useUserStore(store)
+
+        userStore.check()
+    })
+    ChannelSocket!.on('someIsTyping', (channelId, messages: string) => {
+        // console.log('[IN SOCKETS.TS] ', messages)
+        const channelStore = useChannelStore(store)
+        channelStore.setCurrentlyTypingMessages(
+            channelId,
+            new Map(JSON.parse(messages))
+        )
+    })
 
     ChannelSocket!.on('channelDeleted', (channelId: number) => {
         const userStore = useUserStore(store)
         const channelStore = useChannelStore(store)
+        console.log('deleted channel: ' + channelId)
         ChannelSocket!.emit('leaveRoom', channelId)
         userStore.check()
         if (channelStore.activeChannelId === channelId) {

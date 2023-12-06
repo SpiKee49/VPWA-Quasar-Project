@@ -1,6 +1,7 @@
 <template>
     <div class="q-pa-md bg-dark">
         <q-btn
+            v-if="channelStore.getTypingMessages.size > 0"
             flat
             class="row text-info justify-center items-center"
             @click="dialogOpen = true"
@@ -11,6 +12,7 @@
         <q-input
             @keydown.enter="sendMessage"
             v-model.trim="inputText"
+            debounce="1000"
             type="text"
             placeholder="Start typing..."
             autofocus
@@ -30,61 +32,46 @@
     >
         <div style="width: 100%; max-height: 350px">
             <q-chat-message
-                v-for="msg in messages"
-                :bg-color="msg.name === 'me' ? 'positive' : 'info'"
-                :name="msg.name"
-                :text="msg.text"
-                :sent="msg.name === 'me' ? true : false"
+                v-for="[username, message] in channelStore.getTypingMessages"
+                :name="username"
+                :text="[message]"
             />
         </div>
     </CustomDialog>
 </template>
 
 <script setup lang="ts">
-import { MessageType } from 'src/types/messageTypes'
 import CustomDialog from './CustomDialog.vue'
-import { ref, reactive } from 'vue'
+import { ref, watch } from 'vue'
 import { useChannelStore } from '../stores/channels-store'
-import { emitMessage } from 'src/boot/socket'
+import { ChannelSocket, emitMessage } from 'src/boot/socket'
 import { useUserStore } from '../stores/user-store'
 
-const messageStore = useChannelStore()
+const channelStore = useChannelStore()
 const userStore = useUserStore()
+const inputText = ref('')
+const dialogOpen = ref(false)
 
 function sendMessage() {
-    emitMessage(messageStore.getActiveChannel, inputText.value)
-    messageStore.appendMessage(messageStore.getActiveChannel, {
-        id: Math.max(...messageStore.getMessages.map((msg) => msg.id)) + 1,
+    emitMessage(channelStore.getActiveChannel, inputText.value)
+    channelStore.appendMessage(channelStore.getActiveChannel, {
+        id: Math.max(...channelStore.getMessages.map((msg) => msg.id)) + 1,
         createdBy: userStore.getUserData!.id,
         author: userStore.getUserData!,
-        channelId: messageStore.getActiveChannel,
+        channelId: channelStore.getActiveChannel,
         content: inputText.value,
         createdAt: Date.now().toString(),
         updatedAt: Date.now().toString(),
     })
     inputText.value = ''
 }
-const inputText = ref('')
-const dialogOpen = ref(false)
-const messages = reactive<MessageType[]>([
-    {
-        name: 'John Doe',
-        text: ['Im currently typing something...'],
-    },
-    {
-        name: 'John Doe2',
-        text: ['Im currently typing something too...'],
-    },
-    {
-        name: 'John Doe3',
-        text: [
-            'Look I know how is this going to look, but Im currently typing something too...',
-        ],
-    },
-    {
-        name: 'John Doe4',
-        text: ['OKAY, OKAY, SO WHAT? HUH?'],
-    },
-])
+
+function currentlyTyping() {
+    ChannelSocket!.emit('typing', channelStore.activeChannelId, inputText.value)
+}
+
+watch(inputText, currentlyTyping)
+watch(channelStore, () => {
+    if (channelStore.getTypingMessages.size === 0) dialogOpen.value = false
+})
 </script>
-../stores/channels-store

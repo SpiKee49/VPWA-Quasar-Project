@@ -50,7 +50,12 @@
                         </q-item-section>
                         <q-item-section>Kick</q-item-section>
                     </q-item>
-                    <q-item clickable v-close-popup class="text-red">
+                    <q-item
+                        v-if="isOwner"
+                        clickable
+                        v-close-popup
+                        class="text-red"
+                    >
                         <q-item-section avatar>
                             <q-icon color="red" name="fa-solid fa-ban" />
                         </q-item-section>
@@ -84,7 +89,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user-store'
 import { api } from 'src/boot/axios'
 import { ChannelSocket } from 'src/boot/socket'
-import { InfoNotification } from 'src/boot/notifications'
+import { ErrorNotification, InfoNotification } from 'src/boot/notifications'
 
 const route = useRoute()
 const router = useRouter()
@@ -111,16 +116,37 @@ async function leaveChannel(channelId: number) {
 }
 
 async function inviteToChannel() {
-    if (inviteUserName.value === '') return
+    if (inviteUserName.value === '') {
+        ErrorNotification('Username cannot be empty')
+        return
+    }
+
+    if (
+        channelMembers.value
+            .map((member) => member.userName)
+            .includes(inviteUserName.value)
+    ) {
+        ErrorNotification('User is already member of channel')
+        return
+    }
 
     const response = await api.post(
         `channels/${messageStore.getActiveChannel}/invite`,
-        { inviteUserName }
+        { inviteUserName: inviteUserName.value }
     )
 
     if (response.status === 200) {
-        ChannelSocket!.emit('inviteToChannel', inviteUserName)
+        ChannelSocket!.emit(
+            'invite',
+            inviteUserName.value,
+            messageStore.activeChannelId
+        )
         InfoNotification('User invited successfully')
+        fetchMembers()
+        showModal.value = false
+        inviteUserName.value = ''
+    } else {
+        ErrorNotification('There was an error while inviting user to channel')
     }
 }
 
@@ -135,16 +161,11 @@ function getOwner() {
         (channel) => channel.id === messageStore.activeChannelId
     )
     isOwner.value = foundChannel?.created_by === userStore.getUserData?.id
-
-    console.log({
-        foundChannel,
-        value: isOwner.value,
-        userId: userStore.getUserData?.id,
-    })
 }
 
 onMounted(() => {
     fetchMembers()
+    getOwner()
 })
 
 watch(route, () => {
