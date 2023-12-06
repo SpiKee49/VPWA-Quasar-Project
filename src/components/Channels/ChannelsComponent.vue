@@ -45,6 +45,7 @@
                     openDialog = true
                     dialog.title = 'Join channel'
                     dialog.isAdd = false
+                    fetchChannels()
                 }
             "
         />
@@ -160,7 +161,7 @@ async function createChannel() {
     if (response.status === 200) {
         const newChannel = response.data
         await userStore.check()
-        ChannelSocket?.emit('joinRooms', [newChannel.id])
+        ChannelSocket!.emit('joinRooms', [newChannel.id.toString()])
         await messageStore.loadMessages(newChannel.id)
         openDialog.value = false
         router.push(`/channels/${newChannel.id}`)
@@ -193,7 +194,7 @@ async function joinChannel(channelId: number) {
     if (response.status === 200) {
         await userStore.check()
         await messageStore.loadMessages(channelId)
-        ChannelSocket?.emit('joinRooms', [channelId])
+        ChannelSocket!.emit('joinRooms', [channelId.toString()])
         openDialog.value = false
         router.push(`/channels/${channelId}`)
         messageStore.setActiveChannel(channelId)

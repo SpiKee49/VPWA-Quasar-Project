@@ -4,7 +4,7 @@ export interface Channel {
     id: number
     name: string
     is_private: boolean
-    createdBy: number
+    created_by: number
     created_at: Date
     updated_at: Date
     owner: User
