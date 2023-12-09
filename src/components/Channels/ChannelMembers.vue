@@ -29,7 +29,7 @@
         </div>
     </div>
     <q-list>
-        <q-item class="text-center">
+        <q-item v-if="channelMembers.length === 0" class="text-center">
             <p class="full-width">-- No members in channel --</p>
         </q-item>
         <q-item
@@ -39,27 +39,60 @@
             v-ripple
         >
             <q-item-section avatar>
-                <q-icon color="white" size="sm" name="fa-solid fa-user" />
+                <q-icon
+                    :color="
+                        member.status == 1
+                            ? 'positive'
+                            : member.status == 2
+                            ? 'negative'
+                            : 'grey'
+                    "
+                    size="sm"
+                    name="fa-solid fa-user"
+                />
             </q-item-section>
             <q-item-section>@{{ member.userName }}</q-item-section>
-            <q-menu fit transition-show="fade" transition-hide="fade">
+
+            <q-menu
+                v-if="isOwner"
+                fit
+                transition-show="fade"
+                transition-hide="fade"
+            >
                 <q-list flat style="min-width: 200px" class="bg-darker">
-                    <q-item clickable v-close-popup class="text-red">
+                    <q-item
+                        clickable
+                        v-close-popup
+                        class="text-red"
+                        @click="
+                            kickFromChannel(
+                                messageStore.getActiveChannel,
+                                member.id,
+                                member.userName
+                            )
+                        "
+                    >
                         <q-item-section avatar>
                             <q-icon color="red" name="fa-solid fa-door-open" />
                         </q-item-section>
                         <q-item-section>Kick</q-item-section>
                     </q-item>
                     <q-item
-                        v-if="isOwner"
                         clickable
                         v-close-popup
                         class="text-red"
+                        @click="
+                            banFromChannel(
+                                messageStore.getActiveChannel,
+                                member.id,
+                                member.userName
+                            )
+                        "
                     >
                         <q-item-section avatar>
                             <q-icon color="red" name="fa-solid fa-ban" />
                         </q-item-section>
-                        <q-item-section> Ban </q-item-section>
+                        <q-item-section>Ban</q-item-section>
                     </q-item>
                 </q-list>
             </q-menu>
@@ -114,6 +147,31 @@ async function leaveChannel(channelId: number) {
         router.push('/')
     }
 }
+async function kickFromChannel(
+    channelId: number,
+    userId: number,
+    userName: string
+) {
+    const response = await api.put(`/channels/${channelId}/kick`, { userId })
+
+    if (response.status === 200) {
+        ChannelSocket!.emit('userLeftChannel', channelId, userName)
+        fetchMembers()
+    }
+}
+
+async function banFromChannel(
+    channelId: number,
+    userId: number,
+    userName: string
+) {
+    const response = await api.put(`/channels/${channelId}/ban`, { userId })
+
+    if (response.status === 200) {
+        ChannelSocket!.emit('userLeftChannel', channelId, userName)
+        fetchMembers()
+    }
+}
 
 async function inviteToChannel() {
     if (inviteUserName.value === '') {
@@ -162,6 +220,15 @@ function getOwner() {
     )
     isOwner.value = foundChannel?.created_by === userStore.getUserData?.id
 }
+
+ChannelSocket!.on('statusChanged', (userId: number) => {
+    if (channelMembers.value.map((user) => user.id).includes(userId))
+        fetchMembers()
+})
+
+ChannelSocket!.on('updateMembers', (channelId) => {
+    if (messageStore.activeChannelId === channelId) fetchMembers()
+})
 
 onMounted(() => {
     fetchMembers()

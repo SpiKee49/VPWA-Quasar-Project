@@ -1,26 +1,29 @@
 import { LoginCredentials, RegisterData } from '../contracts/Auth'
 import { authManager, authService } from 'src/services'
 
+import { ChannelSocket } from 'src/boot/socket'
+import { LocalStorage } from 'quasar'
 import { User } from 'src/contracts'
 import { defineStore } from 'pinia'
 
 interface UserState {
     user: User | null
     status: 'pending' | 'success' | 'error'
+    onlyMentions: boolean
     errors: { message: string; field?: string[] }[]
-    userActivity: 'online' | 'dnd' | 'offline'
 }
 
 export const useUserStore = defineStore('user', {
     state: (): UserState => ({
         user: null,
         status: 'pending',
+        onlyMentions: LocalStorage.getItem('MENTIONS') ?? false,
         errors: [],
-        userActivity: 'online',
     }),
     getters: {
-        getUserActivity: (state) => state.userActivity,
+        getUserActivity: (state) => state.user!.status,
         getUserData: (state) => state.user,
+        getMentionsStatus: (state) => state.onlyMentions,
         isLoading: (state) => state.status === 'pending',
         isAuthenticated: (state) => state.user !== null,
         getUserChannels: (state) => state.user!.channels,
@@ -33,7 +36,6 @@ export const useUserStore = defineStore('user', {
                 const user = await authService.me()
                 this.status = 'success'
                 this.user = user
-                // console.log('## user-channels ##', user?.channels)
                 return user !== null
             } catch (errors) {
                 this.status = 'error'
@@ -55,6 +57,7 @@ export const useUserStore = defineStore('user', {
         },
         async login(credentials: LoginCredentials) {
             try {
+                console.log('[INSIDE USER-STORE.TS] went')
                 this.status = 'pending'
                 this.errors = []
                 const apiToken = await authService.login(credentials)
@@ -71,6 +74,8 @@ export const useUserStore = defineStore('user', {
             try {
                 this.status = 'pending'
                 this.errors = []
+                LocalStorage.set('STATUS', this.getUserActivity)
+                this.setUserActivity(3)
                 await authService.logout()
                 this.status = 'success'
                 authManager.removeToken()
@@ -80,8 +85,13 @@ export const useUserStore = defineStore('user', {
                 this.errors = errors as typeof this.errors
             }
         },
-        setUserActivity(status: typeof this.userActivity) {
-            this.userActivity = status
+        setUserActivity(status: 1 | 2 | 3) {
+            this.user!.status = status
+            ChannelSocket!.emit('updateStatus', status)
+        },
+        setOnlyMentions(value: boolean) {
+            this.onlyMentions = value
+            LocalStorage.set('MENTIONS', value)
         },
     },
 })

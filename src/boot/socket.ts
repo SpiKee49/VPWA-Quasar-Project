@@ -1,9 +1,11 @@
 import { Manager, Socket } from 'socket.io-client'
 
+import { AppVisibility } from 'quasar'
 import AuthManager from 'src/services/AuthManager'
 import { SerializedMessage } from 'src/contracts'
 import { boot } from 'quasar/wrappers'
 import { convertToCamel } from 'src/services/AuthService'
+import { sendNotification } from './notifications'
 import { useChannelStore } from '../stores/channels-store'
 import { useUserStore } from '../stores/user-store'
 
@@ -40,18 +42,30 @@ export default boot(({ store, router }) => {
     ChannelSocket!.on('newMessage', ({ channelId, message }) => {
         console.log(`New message in channel ${channelId}`)
         const messageStore = useChannelStore(store)
+        const userStore = useUserStore(store)
         const updatedMessage: SerializedMessage = {
             ...message,
             author: convertToCamel(message.author),
         }
         messageStore.appendMessage(channelId, updatedMessage)
 
-        // const title = messageStore.getChannelById(channelId)?.name
-
-        // sendNotification(
-        //     `New message in ${title ?? ''}`,
-        //     `${updatedMessage.author.userName}: ${updatedMessage.content}`
-        // )
+        const title = messageStore.getChannelById(channelId)?.name
+        if (
+            userStore.getUserActivity === 1 &&
+            (!AppVisibility.appVisible ||
+                messageStore.activeChannelId !== channelId) &&
+            (userStore.getMentionsStatus
+                ? updatedMessage.content.includes(
+                      `@${userStore.user!.userName}`
+                  )
+                : true)
+        ) {
+            console.log('[IN SOCKET.TS] condition went')
+            sendNotification(
+                `New message in ${title ?? ''}`,
+                `${updatedMessage.author.userName}: ${updatedMessage.content}`
+            )
+        }
     })
     ChannelSocket!.on('newChannelInvite', (channelId) => {
         console.log(`New channelInvite`)
@@ -61,12 +75,7 @@ export default boot(({ store, router }) => {
         channelStore.loadMessages(channelId)
         setTimeout(channelStore.joinRooms, 1000)
     })
-    ChannelSocket!.on('updateMembers', (channelId) => {
-        console.log(`New channelInvite`)
-        const userStore = useUserStore(store)
 
-        userStore.check()
-    })
     ChannelSocket!.on('someIsTyping', (channelId, messages: string) => {
         // console.log('[IN SOCKETS.TS] ', messages)
         const channelStore = useChannelStore(store)

@@ -12,7 +12,7 @@
         <q-input
             @keydown.enter="sendMessage"
             v-model.trim="inputText"
-            debounce="1000"
+            debounce="100"
             type="text"
             placeholder="Start typing..."
             autofocus
@@ -53,6 +53,7 @@ const inputText = ref('')
 const dialogOpen = ref(false)
 
 function sendMessage() {
+    if (inputText.value === '') return
     emitMessage(channelStore.getActiveChannel, inputText.value)
     channelStore.appendMessage(channelStore.getActiveChannel, {
         id: Math.max(...channelStore.getMessages.map((msg) => msg.id)) + 1,

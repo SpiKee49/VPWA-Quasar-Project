@@ -1,7 +1,7 @@
 <template>
     <q-card class="my-card" square flat>
         <q-card-section class="bg-info text-white row justify-between">
-            <div class="flex-row">
+            <div class="flex=">
                 <p class="text-h6 q-ma-none">{{ userStore.user?.userName }}</p>
                 <p class="text-caption">{{ userStore.user?.email }}</p>
                 <p
@@ -9,7 +9,11 @@
                 >
                     {{ status[userStore.getUserActivity] }}
                 </p>
+                <q-toggle v-model="onlyMentions" color="secondary" keep-color>
+                    Only Mentions
+                </q-toggle>
             </div>
+
             <q-btn
                 color="white"
                 flat
@@ -22,19 +26,19 @@
                 color="positive"
                 class="text-caption"
                 label="Online"
-                @click="userStore.setUserActivity('online')"
+                @click="userStore.setUserActivity(1)"
             />
             <q-btn
                 color="negative"
                 class="text-caption"
                 label="Don't disturb"
-                @click="userStore.setUserActivity('dnd')"
+                @click="userStore.setUserActivity(2)"
             />
             <q-btn
                 color="secondary"
                 class="text-caption"
                 label="Offline"
-                @click="userStore.setUserActivity('offline')"
+                @click="userStore.setUserActivity(3)"
             />
         </q-card-actions>
     </q-card>
@@ -43,12 +47,14 @@
 
 <script setup lang="ts">
 import { useUserStore } from '../../stores/user-store'
-
-const status = {
-    online: 'Online',
-    dnd: 'Do not disturb',
-    offline: 'Offline',
-}
+import { ref, watch } from 'vue'
 
 const userStore = useUserStore()
+const onlyMentions = ref(userStore.getMentionsStatus)
+const status = {
+    1: 'Online',
+    2: 'Do not disturb',
+    3: 'Offline',
+}
+watch(onlyMentions, () => userStore.setOnlyMentions(onlyMentions.value))
 </script>

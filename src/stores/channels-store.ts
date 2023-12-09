@@ -33,11 +33,7 @@ export const useChannelStore = defineStore('messages', {
     },
     actions: {
         joinRooms() {
-            const userStore = useUserStore()
-            ChannelSocket!.emit(
-                'joinRooms',
-                userStore.user?.channels.map((channel) => channel.id.toString())
-            )
+            ChannelSocket!.emit('joinRooms')
         },
 
         async loadMessages(channelId: number) {
@@ -51,7 +47,6 @@ export const useChannelStore = defineStore('messages', {
 
         getChannelById(channelId: number) {
             const userStore = useUserStore()
-
             const channel = userStore.getUserChannels.find(
                 (channel) => channel.id === channelId
             )

@@ -18,7 +18,7 @@ module.exports = configure(function (ctx) {
         // app boot file (/src/boot)
         // --> boot files are part of "main.js"
         // https://v2.quasar.dev/quasar-cli-vite/boot-files
-        boot: ['axios', 'auth', 'socket', 'notifications'],
+        boot: ['axios', 'auth', 'notifications', 'socket'],
 
         // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
         css: ['app.scss'],
@@ -82,7 +82,7 @@ module.exports = configure(function (ctx) {
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
         devServer: {
-            // https: true
+            https: true,
             open: true, // opens browser window automatically
         },
 
@@ -103,7 +103,7 @@ module.exports = configure(function (ctx) {
             // directives: [],
 
             // Quasar plugins
-            plugins: ['Notify'],
+            plugins: ['Notify', 'AppVisibility', 'LocalStorage'],
         },
 
         // animations: 'all', // --- includes all animations
@@ -145,16 +145,16 @@ module.exports = configure(function (ctx) {
 
         // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
         pwa: {
-            workboxMode: 'generateSW', // or 'injectManifest'
+            workboxMode: 'injectManifest', // or 'injectManifest'
             injectPwaMetaTags: true,
             swFilename: 'sw.js',
             manifestFilename: 'manifest.json',
             useCredentialsForManifestTag: false,
             // useFilenameHashes: true,
-            // extendGenerateSWOptions (cfg) {}
-            // extendInjectManifestOptions (cfg) {},
-            // extendManifestJson (json) {}
-            // extendPWACustomSWConf (esbuildConf) {}
+            // extendGenerateSWOptions(cfg) {},
+            // extendInjectManifestOptions(cfg) {},
+            // extendManifestJson(json) {},
+            // extendPWACustomSWConf(esbuildConf) {},
         },
 
         // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova

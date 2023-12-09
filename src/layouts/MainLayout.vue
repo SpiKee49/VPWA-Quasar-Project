@@ -50,6 +50,7 @@ import { onMounted, ref, watch, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user-store'
 import { useChannelStore } from '../stores/channels-store'
+import { LocalStorage } from 'quasar'
 
 //Stores
 const userStore = useUserStore()
@@ -89,6 +90,7 @@ onMounted(() => {
     userStore.getUserChannels.forEach(
         async (channel) => await messageStore.loadMessages(channel.id)
     )
+    userStore.setUserActivity(LocalStorage.getItem('STATUS') ?? 1)
 })
 watch(route, () => {
     displayFooter()

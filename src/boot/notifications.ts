@@ -30,6 +30,15 @@ function InfoNotification(text: string) {
     })
 }
 
+const checkSupport = () => {
+    if (!('serviceWorker' in navigator)) {
+        throw new Error('No Service Worker support!')
+    }
+    if (!('PushManager' in window)) {
+        throw new Error('No Push API Support!')
+    }
+}
+
 //src: https://developer.mozilla.org/en-US/docs/Web/API/Notification/permission_static
 function sendNotification(title: string, body: string) {
     if (!('Notification' in window)) {
@@ -68,5 +77,6 @@ export {
     ErrorNotification,
     WarningNotification,
     InfoNotification,
+    checkSupport,
     sendNotification,
 }
