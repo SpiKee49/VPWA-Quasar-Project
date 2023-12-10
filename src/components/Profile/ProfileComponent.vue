@@ -26,18 +26,21 @@
                 color="positive"
                 class="text-caption"
                 label="Online"
+                :disable="userStore.getUserActivity === 1"
                 @click="userStore.setUserActivity(1)"
             />
             <q-btn
                 color="negative"
                 class="text-caption"
                 label="Don't disturb"
+                :disable="userStore.getUserActivity === 2"
                 @click="userStore.setUserActivity(2)"
             />
             <q-btn
                 color="secondary"
                 class="text-caption"
                 label="Offline"
+                :disable="userStore.getUserActivity === 3"
                 @click="userStore.setUserActivity(3)"
             />
         </q-card-actions>

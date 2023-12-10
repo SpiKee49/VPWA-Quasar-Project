@@ -16,7 +16,11 @@
                 flat
                 size="12px"
                 icon="fa-solid fa-door-open"
-                @click="leaveChannel(messageStore.getActiveChannel)"
+                @click="
+                    isOwner
+                        ? deleteChannel(messageStore.getActiveChannel)
+                        : leaveChannel(messageStore.getActiveChannel)
+                "
             />
             <q-btn
                 v-if="isOwner"
@@ -122,7 +126,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user-store'
 import { api } from 'src/boot/axios'
 import { ChannelSocket } from 'src/boot/socket'
-import { ErrorNotification, InfoNotification } from 'src/boot/notifications'
+import {
+    ErrorNotification,
+    InfoNotification,
+    WarningNotification,
+} from 'src/boot/notifications'
 
 const route = useRoute()
 const router = useRouter()
@@ -134,11 +142,20 @@ const inviteUserName = ref('')
 const channelMembers = ref<User[]>([])
 
 async function fetchMembers() {
+    if (userStore.getUserActivity === 3) {
+        return
+    }
     const memembers = await messageStore.loadMembers()
     channelMembers.value = [...memembers]
 }
 
 async function leaveChannel(channelId: number) {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
     const response = await api.get(`/channels/${channelId}/leave`)
 
     if (response.status === 200) {
@@ -152,6 +169,12 @@ async function kickFromChannel(
     userId: number,
     userName: string
 ) {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
     const response = await api.put(`/channels/${channelId}/kick`, { userId })
 
     if (response.status === 200) {
@@ -165,6 +188,12 @@ async function banFromChannel(
     userId: number,
     userName: string
 ) {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
     const response = await api.put(`/channels/${channelId}/ban`, { userId })
 
     if (response.status === 200) {
@@ -174,6 +203,12 @@ async function banFromChannel(
 }
 
 async function inviteToChannel() {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
     if (inviteUserName.value === '') {
         ErrorNotification('Username cannot be empty')
         return
@@ -209,6 +244,12 @@ async function inviteToChannel() {
 }
 
 async function deleteChannel(channelId: number) {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
     ChannelSocket!.emit('deleteChannel', channelId)
     await userStore.check()
     router.push('/')

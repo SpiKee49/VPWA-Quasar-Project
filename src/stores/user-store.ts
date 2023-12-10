@@ -5,6 +5,7 @@ import { ChannelSocket } from 'src/boot/socket'
 import { LocalStorage } from 'quasar'
 import { User } from 'src/contracts'
 import { defineStore } from 'pinia'
+import { useChannelStore } from './channels-store'
 
 interface UserState {
     user: User | null
@@ -86,6 +87,16 @@ export const useUserStore = defineStore('user', {
             }
         },
         setUserActivity(status: 1 | 2 | 3) {
+            const channelStore = useChannelStore()
+            if (this.user!.status === 3 && status !== this.user!.status) {
+                channelStore.joinRooms()
+                this.getUserChannels.forEach(
+                    async (channel) =>
+                        await channelStore.loadMessages(channel.id)
+                )
+            } else if (status === 3) {
+                channelStore.leaveRooms()
+            }
             this.user!.status = status
             ChannelSocket!.emit('updateStatus', status)
         },

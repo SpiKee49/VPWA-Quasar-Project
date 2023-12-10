@@ -35,12 +35,34 @@ export const useChannelStore = defineStore('messages', {
         joinRooms() {
             ChannelSocket!.emit('joinRooms')
         },
+        leaveRooms() {
+            ChannelSocket!.emit('leaveRooms')
+        },
 
         async loadMessages(channelId: number) {
             const res = await api.post(`channels/${channelId}/messages`)
+            const userStore = useUserStore()
+            let deleteChannel = false
             const messages = res.data.map((message: any) => {
-                return { ...message, author: convertToCamel(message.author) }
+                if (
+                    Math.ceil(
+                        Math.abs(+new Date() - +new Date(message.created_at)) /
+                            (1000 * 60 * 60 * 24)
+                    ) >= 30
+                ) {
+                    deleteChannel = true
+                }
+                return {
+                    ...message,
+                    author: convertToCamel(message.author),
+                }
             }) as SerializedMessage[]
+
+            if (deleteChannel) {
+                ChannelSocket!.emit('deleteChannel', channelId)
+                await userStore.check()
+                return
+            }
 
             this.channelMessages[channelId] = messages
         },

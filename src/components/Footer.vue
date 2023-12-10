@@ -10,6 +10,7 @@
             <p class="q-ma-none q-ml-sm">Someone is typing...</p>
         </q-btn>
         <q-input
+            :disable="userStore.getUserActivity === 3"
             @keydown.enter="sendMessage"
             v-model.trim="inputText"
             debounce="100"

@@ -2,7 +2,7 @@
     <q-layout view="lHh LpR lFr">
         <q-header bordered="" class="bg-info text-white">
             <q-toolbar>
-                <q-toolbar-title> Dačo take jak Discord </q-toolbar-title>
+                <q-toolbar-title> Diskord </q-toolbar-title>
 
                 <q-btn
                     dense

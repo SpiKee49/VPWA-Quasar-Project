@@ -122,7 +122,6 @@ interface DialogProps {
     isAdd: boolean
 }
 
-const route = useRoute()
 const router = useRouter()
 
 const messageStore = useChannelStore()
@@ -143,11 +142,16 @@ const dialog = reactive<DialogProps>({
 
 onBeforeMount(() => {
     messageStore.joinRooms()
-
     fetchChannels()
 })
 
 async function createChannel() {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
     if (newChannelName.value === '') {
         WarningNotification('Channel name is required for new channel')
         return
@@ -170,6 +174,12 @@ async function createChannel() {
 }
 
 async function fetchChannels() {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
     loadingChannels.value = true
 
     const res = await api.get<Channel[]>(
@@ -189,6 +199,13 @@ async function fetchChannels() {
 }
 
 async function joinChannel(channelId: number) {
+    if (userStore.getUserActivity === 3) {
+        WarningNotification(
+            'You cannot perform this action when you are offline'
+        )
+        return
+    }
+
     const response = await api.post(`/channels/${channelId}/join`)
 
     if (response.status === 200) {
